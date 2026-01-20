@@ -32,8 +32,6 @@ struct ContentView: View {
     @State private var isSelectingDateRange = false
     @State private var showImageDetail = false
     @State private var detailImage: UIImage?
-    @State private var isSelectionMode = false
-    @State private var selectedImages: Set<String> = []
     
     
     // Computed property for date filter status
@@ -80,7 +78,7 @@ struct ContentView: View {
         
         return result
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -128,36 +126,52 @@ struct ContentView: View {
                         .padding(.horizontal)
                         .padding(.top, 8)
                         
-                        // Active date filter display and select button row
-                        if hasDateFilter  {
+                        // Active date filter display
+                        if hasDateFilter {
                             HStack {
-                                dateFilterBadge
-                                clearFilterButton
+                                HStack(spacing: 4) {
+                                    Image(systemName: "calendar")
+                                        .font(.caption)
+                                    if let start = selectedStartDate, let end = selectedEndDate, start != end {
+                                        Text("\(formatDate(start)) - \(formatDate(end))")
+                                            .font(.caption)
+                                    } else if let date = selectedStartDate {
+                                        Text(formatDate(date))
+                                            .font(.caption)
+                                    }
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.blue.opacity(0.1))
+                                .foregroundStyle(.blue)
+                                .cornerRadius(8)
+                                
+                                Button {
+                                    clearDateFilter()
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                                
                                 Spacer()
                             }
                             .padding(.horizontal)
                         }
-                        
                     }
                     
                     if filteredImages.isEmpty {
-                        Spacer()
                         ContentUnavailableView(
                             searchText.isEmpty && !hasDateFilter ? "No food photos yet" : "No results found",
                             systemImage: searchText.isEmpty && !hasDateFilter ? "photo.on.rectangle.angled" : "magnifyingglass",
                             description: Text(searchText.isEmpty && !hasDateFilter ? "Tap the buttons below to add your first photo." : "Try adjusting your search or date filter")
                         )
                         .padding()
-                        Spacer()
                     } else {
                         // Sort toggle
                         HStack {
                             Spacer()
                             
-                            // Select button
-                            if !images.isEmpty {
-                                selectButton
-                            }
                             Menu {
                                 Button {
                                     withAnimation {
@@ -215,47 +229,20 @@ struct ContentView: View {
                         .padding(.horizontal)
                         .padding(.top, 8)
                         
-                        ZStack(alignment: .bottom) {
-                            ScrollView {
-                                VStack(spacing: 20) {
-                                    switch sortOption {
-                                    case .all:
-                                        allItemsView
-                                    case .location:
-                                        locationGroupedView
-                                    case .rating:
-                                        ratingBasedView
-                                    }
-                                }
-                                .padding(.bottom, 80) // Space for camera buttons
-                            }
-                            
-                            // Floating delete button
-                            if isSelectionMode && !selectedImages.isEmpty {
-                                Button {
-                                    showDeleteConfirmation()
-                                } label: {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "trash.fill")
-                                        Text("Delete \(selectedImages.count)")
-                                            .fontWeight(.semibold)
-                                    }
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 14)
-                                    .background(Color.red)
-                                    .cornerRadius(25)
-                                    .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
-                                }
-                                .padding(.bottom, 100) // Above camera buttons
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                        ScrollView {
+                            switch sortOption {
+                            case .all:
+                                allItemsView
+                            case .location:
+                                locationGroupedView
+                            case .rating:
+                                ratingBasedView
                             }
                         }
-                        .animation(.spring(), value: isSelectionMode)
-                        .animation(.spring(), value: selectedImages.count)
                     }
                     
-                    // Camera buttons at bottom
+                    Spacer()
+                    
                     HStack(spacing: 12) {
                         Button {
                             showCamera = true
@@ -282,14 +269,12 @@ struct ContentView: View {
                         }
                     }
                     .padding([.horizontal, .bottom])
-                    .background(Color.white)
                 }
             }
             .onTapGesture {
-                hideKeyboard()
+                hideKeyboard()  // Dismiss keyboard when tapping outside
             }
             .toolbarBackground(.hidden, for: .navigationBar)
-            // All your sheets here...
             .sheet(isPresented: $showCamera) {
                 print("🎥 Camera sheet dismissed")
             } content: {
@@ -356,6 +341,7 @@ struct ContentView: View {
                         image: uiImage,
                         note: notes[img.id]
                     ) {
+                        // When edit is tapped from detail view
                         showImageDetail = false
                         showAddNote = true
                     }
@@ -393,29 +379,29 @@ struct ContentView: View {
             }
             return "No Location"
         }
-        
+
         let sortedLocations = groupedByLocation.keys.sorted { a, b in
             if a == "No Location" { return false }
             if b == "No Location" { return true }
             return a < b
         }
-        
+
         return LazyVStack(spacing: 24) {
             ForEach(sortedLocations, id: \.self) { location in
                 let locationImages = groupedByLocation[location] ?? []
-                
+
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: location == "No Location" ? "questionmark.circle" : "mappin.circle.fill")
                             .foregroundStyle(location == "No Location" ? .gray : .red)
-                        
+
                         Text(location)
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundStyle(Color(red: 0, green: 0, blue: 0))
-                        
+
                         Spacer()
-                        
+
                         Text("\(locationImages.count)")
                             .font(.subheadline)
                             .foregroundStyle(.gray)
@@ -425,25 +411,25 @@ struct ContentView: View {
                             .cornerRadius(8)
                     }
                     .padding(.horizontal)
-                    
+
                     let groupedByRestaurant: [String: [StoredImage]] = Dictionary(grouping: locationImages) { img in
                         if let note = notes[img.id], !note.restaurant.isEmpty {
                             return note.restaurant
                         }
                         return "No Restaurant"
                     }
-                    
+
                     let sortedRestaurants = groupedByRestaurant.keys.sorted { a, b in
                         if a == "No Restaurant" { return false }
                         if b == "No Restaurant" { return true }
                         return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
                     }
-                    
+
                     VStack(spacing: 12) {
                         ForEach(sortedRestaurants, id: \.self) { restaurant in
                             let restaurantImages = (groupedByRestaurant[restaurant] ?? [])
                                 .sorted { $0.createdDate > $1.createdDate }
-                            
+
                             NavigationLink {
                                 RestaurantDetailView(
                                     location: location,
@@ -536,84 +522,50 @@ struct ContentView: View {
         Group {
             if let uiImage = UIImage(contentsOfFile: img.fileURL.path) {
                 VStack(alignment: .leading, spacing: 8) {
-                    ZStack(alignment: .topTrailing) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 160, height: 160)
-                            .clipped()
-                            .cornerRadius(16)
-                            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(selectedImages.contains(img.id) ? Color.blue : Color.clear, lineWidth: 3)
-                            )
-                            .onTapGesture {
-                                if isSelectionMode {
-                                    toggleSelection(for: img.id)
-                                } else {
-                                    // Normal tap - show detail view
-                                    print("🖱️ Image tapped - showing detail view")
-                                    selectedImage = img
-                                    detailImage = uiImage
-                                    pendingUIImage = uiImage
-                                    pendingLocation = nil
-                                    
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                        showImageDetail = true
-                                    }
-                                }
-                            }
-                        
-                        // Selection checkmark
-                        if isSelectionMode {
-                            Image(systemName: selectedImages.contains(img.id) ? "checkmark.circle.fill" : "circle")
-                                .font(.title2)
-                                .foregroundStyle(selectedImages.contains(img.id) ? .blue : .white)
-                                .background(
-                                    Circle()
-                                        .fill(selectedImages.contains(img.id) ? Color.white : Color.black.opacity(0.3))
-                                        .frame(width: 24, height: 24)
-                                )
-                                .padding(8)
-                                .shadow(color: .black.opacity(0.2), radius: 2)
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 160, height: 160)
+                        .clipped()
+                        .cornerRadius(16)
+                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        .onTapGesture {
+                            print("🖱️ Image tapped - showing detail view")
+                            selectedImage = img
+                            detailImage = uiImage
+                            pendingUIImage = uiImage
+                            pendingLocation = nil
+                            showImageDetail = true  // Show detail instead of add note
                         }
-                    }
                     
+                    // Tappable note info
                     noteInfoView(for: img)
                         .frame(width: 160, alignment: .leading)
                         .padding(.horizontal, 4)
                         .background(Color.white)
                         .onTapGesture {
-                            if !isSelectionMode {
-                                print("🖱️ Note info tapped - showing add note")
-                                selectedImage = img
-                                pendingUIImage = uiImage
-                                pendingLocation = nil
-                                showAddNote = true
-                            }
-                        }
-                }
-                .background(Color.white)
-                .opacity(isSelectionMode && !selectedImages.contains(img.id) ? 0.6 : 1.0)
-                .scaleEffect(selectedImages.contains(img.id) ? 0.95 : 1.0)
-                .animation(.spring(response: 0.3), value: selectedImages.contains(img.id))
-                .contextMenu {
-                    if !isSelectionMode {
-                        Button {
+                            print("🖱️ Note info tapped - showing add note")
                             selectedImage = img
                             pendingUIImage = uiImage
                             pendingLocation = nil
-                            showAddNote = true
-                        } label: {
-                            Label("Edit Note", systemImage: "pencil")
+                            showAddNote = true  // Show add note when tapping text
                         }
-                        
-                        Button(role: .destructive) {
-                            deleteImage(img)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
+                }
+                .background(Color.white)
+                .contextMenu {
+                    Button {
+                        selectedImage = img
+                        pendingUIImage = uiImage
+                        pendingLocation = nil
+                        showAddNote = true
+                    } label: {
+                        Label("Edit Note", systemImage: "pencil")
+                    }
+                    
+                    Button(role: .destructive) {
+                        deleteImage(img)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
@@ -624,91 +576,56 @@ struct ContentView: View {
         Group {
             if let uiImage = UIImage(contentsOfFile: img.fileURL.path) {
                 VStack(alignment: .leading, spacing: 12) {
-                    ZStack(alignment: .topTrailing) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 280, height: 280)
-                            .clipped()
-                            .cornerRadius(20)
-                            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(selectedImages.contains(img.id) ? Color.blue : Color.clear, lineWidth: 3)
-                            )
-                            .onTapGesture {
-                                if isSelectionMode {
-                                    toggleSelection(for: img.id)
-                                } else {
-                                    print("🖱️ Stacked image tapped - showing detail view")
-                                    selectedImage = img
-                                    detailImage = uiImage
-                                    pendingUIImage = uiImage
-                                    pendingLocation = nil
-                                    
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                        showImageDetail = true
-                                    }
-                                }
-                            }
-                        
-                        // Selection checkmark
-                        if isSelectionMode {
-                            Image(systemName: selectedImages.contains(img.id) ? "checkmark.circle.fill" : "circle")
-                                .font(.title)
-                                .foregroundStyle(selectedImages.contains(img.id) ? .blue : .white)
-                                .background(
-                                    Circle()
-                                        .fill(selectedImages.contains(img.id) ? Color.white : Color.black.opacity(0.3))
-                                        .frame(width: 30, height: 30)
-                                )
-                                .padding(12)
-                                .shadow(color: .black.opacity(0.2), radius: 2)
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 280, height: 280)
+                        .clipped()
+                        .cornerRadius(20)
+                        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                        .onTapGesture {
+                            print("🖱️ Stacked image tapped - showing detail view")
+                            selectedImage = img
+                            detailImage = uiImage
+                            pendingUIImage = uiImage
+                            pendingLocation = nil
+                            showImageDetail = true
                         }
-                    }
                     
                     noteInfoView(for: img, isStacked: true)
                         .frame(width: 280, alignment: .leading)
                         .padding(.horizontal, 8)
                         .onTapGesture {
-                            if !isSelectionMode {
-                                print("🖱️ Stacked note tapped - showing add note")
-                                selectedImage = img
-                                pendingUIImage = uiImage
-                                pendingLocation = nil
-                                showAddNote = true
-                            }
+                            print("🖱️ Stacked note tapped - showing add note")
+                            selectedImage = img
+                            pendingUIImage = uiImage
+                            pendingLocation = nil
+                            showAddNote = true
                         }
                 }
                 .padding(16)
                 .background(Color.white)
                 .cornerRadius(24)
                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
-                .opacity(isSelectionMode && !selectedImages.contains(img.id) ? 0.6 : 1.0)
-                .scaleEffect(selectedImages.contains(img.id) ? 0.95 : 1.0)
-                .animation(.spring(response: 0.3), value: selectedImages.contains(img.id))
                 .contextMenu {
-                    if !isSelectionMode {
-                        Button {
-                            selectedImage = img
-                            pendingUIImage = uiImage
-                            pendingLocation = nil
-                            showAddNote = true
-                        } label: {
-                            Label("Edit Note", systemImage: "pencil")
-                        }
-                        
-                        Button(role: .destructive) {
-                            deleteImage(img)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
+                    Button {
+                        selectedImage = img
+                        pendingUIImage = uiImage
+                        pendingLocation = nil
+                        showAddNote = true
+                    } label: {
+                        Label("Edit Note", systemImage: "pencil")
+                    }
+                    
+                    Button(role: .destructive) {
+                        deleteImage(img)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
         }
     }
-    
     func noteInfoView(for img: StoredImage, isStacked: Bool = false) -> some View {
         let fontSize: CGFloat = isStacked ? 18 : 16
         let smallFontSize: CGFloat = isStacked ? 14 : 12
@@ -722,17 +639,17 @@ struct ContentView: View {
                     .foregroundStyle(Color(red: 0, green: 0, blue: 0))
                 
                 // Restaurant name
-                if !note.restaurant.isEmpty {
-                    HStack(spacing: 4) {
-                        Image(systemName: "fork.knife")
-                            .font(.system(size: smallFontSize - 2))
-                            .foregroundStyle(Color(red: 0, green: 0, blue: 0))
-                        Text(note.restaurant)
-                            .font(.system(size: smallFontSize))
-                            .foregroundStyle(Color(red: 0, green: 0, blue: 0))
-                            .lineLimit(1)
-                    }
-                }
+                            if !note.restaurant.isEmpty {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "fork.knife")
+                                        .font(.system(size: smallFontSize - 2))
+                                        .foregroundStyle(Color(red: 0, green: 0, blue: 0))
+                                    Text(note.restaurant)
+                                        .font(.system(size: smallFontSize))
+                                        .foregroundStyle(Color(red: 0, green: 0, blue: 0))
+                                        .lineLimit(1)
+                                }
+                            }
                 
                 //Location
                 if !note.location.isEmpty && !isStacked {
@@ -816,7 +733,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     func loadImages() async {
         print("📂 Loading images...")
         do {
@@ -834,7 +751,7 @@ struct ContentView: View {
             errorMessage = error.localizedDescription
         }
     }
-    
+
     func deleteImage(_ img: StoredImage) {
         print("🗑️ Deleting: \(img.id)")
         do {
@@ -848,104 +765,5 @@ struct ContentView: View {
             errorMessage = error.localizedDescription
         }
     }
-    // MARK: - Multi-Select Functions
     
-    private func toggleSelection(for imageId: String) {
-        if selectedImages.contains(imageId) {
-            selectedImages.remove(imageId)
-        } else {
-            selectedImages.insert(imageId)
-        }
-    }
-    
-    private func showDeleteConfirmation() {
-        let alert = UIAlertController(
-            title: "Delete \(selectedImages.count) Photo\(selectedImages.count > 1 ? "s" : "")?",
-            message: "This action cannot be undone.",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
-            deleteSelectedImages()
-        })
-        
-        // Present alert
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootViewController = windowScene.windows.first?.rootViewController {
-            rootViewController.present(alert, animated: true)
-        }
-    }
-    
-    private func deleteSelectedImages() {
-        // Delete all selected images
-        for imageId in selectedImages {
-            if let img = images.first(where: { $0.id == imageId }) {
-                deleteImage(img)
-            }
-        }
-        
-        // Exit selection mode
-        withAnimation {
-            selectedImages.removeAll()
-            isSelectionMode = false
-        }
-    }
-    
-    // MARK: - UI Components
-    
-    private var dateFilterBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "calendar")
-                .font(.caption)
-            
-            Group {
-                if let start = selectedStartDate, let end = selectedEndDate, start != end {
-                    Text("\(formatDate(start)) - \(formatDate(end))")
-                } else if let date = selectedStartDate {
-                    Text(formatDate(date))
-                }
-            }
-            .font(.caption)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color.blue.opacity(0.1))
-        .foregroundStyle(.blue)
-        .cornerRadius(8)
-    }
-    
-    private var clearFilterButton: some View {
-        Button {
-            clearDateFilter()
-        } label: {
-            Image(systemName: "xmark.circle.fill")
-                .font(.caption)
-                .foregroundStyle(.gray)
-        }
-    }
-    
-    private var selectButton: some View {
-        Button {
-            withAnimation {
-                isSelectionMode.toggle()
-                if !isSelectionMode {
-                    selectedImages.removeAll()
-                }
-            }
-        } label: {
-            Text(isSelectionMode ? "Cancel" : "Select")
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(isSelectionMode ? .red : .blue)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.white)
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelectionMode ? Color.red.opacity(0.3) : Color.blue.opacity(0.3), lineWidth: 1)
-                )
-        }
-    }
 }

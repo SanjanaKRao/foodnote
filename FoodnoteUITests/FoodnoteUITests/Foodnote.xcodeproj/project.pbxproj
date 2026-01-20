@@ -30,43 +30,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C140FCB22E65F65900D25DA1 /* Foodnote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foodnote.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C140FCC02E65F65A00D25DA1 /* FoodnoteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodnoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C140FCCA2E65F65A00D25DA1 /* FoodnoteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodnoteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C147EAFF2F1E722D00259D33 /* Foodnote.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Foodnote.xcodeproj; sourceTree = "<group>"; };
-		C147EB042F1E722D00259D33 /* Foodnote.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Foodnote.xcodeproj; sourceTree = "<group>"; };
+		C140FCB22E65F65900D25DA1 /* Foodnote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Foodnote.app; path = /Users/sanjanakrao/Desktop/Projects/foodnote/FoodnoteUITests/build/Debug/Foodnote.app; sourceTree = "<absolute>"; };
+		C140FCC02E65F65A00D25DA1 /* FoodnoteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = FoodnoteTests.xctest; path = /Users/sanjanakrao/Desktop/Projects/foodnote/FoodnoteUITests/build/Debug/Foodnote.app/Contents/PlugIns/FoodnoteTests.xctest; sourceTree = "<absolute>"; };
+		C140FCCA2E65F65A00D25DA1 /* FoodnoteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = FoodnoteUITests.xctest; path = "/Users/sanjanakrao/Desktop/Projects/foodnote/FoodnoteUITests/build/Debug/FoodnoteUITests-Runner.app/Contents/PlugIns/FoodnoteUITests.xctest"; sourceTree = "<absolute>"; };
+		C18BA9FD2F1E6FD40061C818 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		C18BA9FE2F1E6FDF0061C818 /* Foodnote */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Foodnote; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C15F669E2F1A4277002D7583 /* Exceptions for "Foodnote" folder in "Foodnote" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = C140FCB12E65F65900D25DA1 /* Foodnote */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		C140FCB42E65F65900D25DA1 /* Foodnote */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				C15F669E2F1A4277002D7583 /* Exceptions for "Foodnote" folder in "Foodnote" target */,
-			);
-			path = Foodnote;
-			sourceTree = "<group>";
-		};
-		C140FCC32E65F65A00D25DA1 /* FoodnoteTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FoodnoteTests;
-			sourceTree = "<group>";
-		};
-		C140FCCD2E65F65A00D25DA1 /* FoodnoteUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FoodnoteUITests;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C140FCAF2E65F65900D25DA1 /* Frameworks */ = {
@@ -99,35 +68,9 @@
 		C140FCA92E65F65900D25DA1 = {
 			isa = PBXGroup;
 			children = (
-				C140FCB42E65F65900D25DA1 /* Foodnote */,
-				C140FCC32E65F65A00D25DA1 /* FoodnoteTests */,
-				C140FCCD2E65F65A00D25DA1 /* FoodnoteUITests */,
-				C140FCB32E65F65900D25DA1 /* Products */,
+				C18BA9FE2F1E6FDF0061C818 /* Foodnote */,
+				C18BA9FD2F1E6FD40061C818 /* .gitignore */,
 			);
-			sourceTree = "<group>";
-		};
-		C140FCB32E65F65900D25DA1 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				C140FCB22E65F65900D25DA1 /* Foodnote.app */,
-				C140FCC02E65F65A00D25DA1 /* FoodnoteTests.xctest */,
-				C140FCCA2E65F65A00D25DA1 /* FoodnoteUITests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		C147EB092F1E722D00259D33 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		C147EB0B2F1E722D00259D33 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -144,9 +87,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				C140FCB42E65F65900D25DA1 /* Foodnote */,
 			);
 			name = Foodnote;
 			packageProductDependencies = (
@@ -171,9 +111,6 @@
 			dependencies = (
 				C140FCC22E65F65A00D25DA1 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				C140FCC32E65F65A00D25DA1 /* FoodnoteTests */,
-			);
 			name = FoodnoteTests;
 			packageProductDependencies = (
 			);
@@ -193,9 +130,6 @@
 			);
 			dependencies = (
 				C140FCCC2E65F65A00D25DA1 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C140FCCD2E65F65A00D25DA1 /* FoodnoteUITests */,
 			);
 			name = FoodnoteUITests;
 			packageProductDependencies = (
@@ -241,18 +175,8 @@
 				C15F66932F1A24AF002D7583 /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = C140FCB32E65F65900D25DA1 /* Products */;
+			productRefGroup = C140FCA92E65F65900D25DA1;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = C147EB092F1E722D00259D33 /* Products */;
-					ProjectRef = C147EB042F1E722D00259D33 /* Foodnote.xcodeproj */;
-				},
-				{
-					ProductGroup = C147EB0B2F1E722D00259D33 /* Products */;
-					ProjectRef = C147EAFF2F1E722D00259D33 /* Foodnote.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				C140FCB12E65F65900D25DA1 /* Foodnote */,
@@ -383,7 +307,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = "";
 			};
 			name = Debug;
 		};
