@@ -10,6 +10,7 @@
 		C15F66922F1A181B002D7583 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = C15F66912F1A181B002D7583 /* GoogleMaps */; };
 		C15F66952F1A24DF002D7583 /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = C15F66942F1A24DF002D7583 /* GooglePlaces */; };
 		C15F66972F1A24DF002D7583 /* GooglePlacesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C15F66962F1A24DF002D7583 /* GooglePlacesSwift */; };
+		C1D0626A2F1F91EC0044E44F /* README 2.md in Resources */ = {isa = PBXBuildFile; fileRef = C1D0623B2F1F91EC0044E44F /* README 2.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,34 +36,13 @@
 		C140FCCA2E65F65A00D25DA1 /* FoodnoteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodnoteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C147EAFF2F1E722D00259D33 /* Foodnote.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Foodnote.xcodeproj; sourceTree = "<group>"; };
 		C147EB042F1E722D00259D33 /* Foodnote.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Foodnote.xcodeproj; sourceTree = "<group>"; };
+		C1D0623B2F1F91EC0044E44F /* README 2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "README 2.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C147EB632F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "Foodnote" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				FunctionalRequirements.md,
-			);
-			target = C140FCB12E65F65900D25DA1 /* Foodnote */;
-		};
-		C147EB642F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "FoodnoteTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				FunctionalRequirements.md,
-			);
-			target = C140FCBF2E65F65A00D25DA1 /* FoodnoteTests */;
-		};
-		C147EBA32F1F915000259D33 /* Exceptions for "Foodnote" folder in "FoodnoteUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"FunctionalRequirements 2.md",
-			);
-			target = C140FCC92E65F65A00D25DA1 /* FoodnoteUITests */;
-		};
 		C15F669E2F1A4277002D7583 /* Exceptions for "Foodnote" folder in "Foodnote" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"FunctionalRequirements 2.md",
 				Info.plist,
 				Secrets.swift.example,
 			);
@@ -86,17 +66,12 @@
 			exceptions = (
 				C15F669E2F1A4277002D7583 /* Exceptions for "Foodnote" folder in "Foodnote" target */,
 				C147EB692F1F8E3D00259D33 /* Exceptions for "Foodnote" folder in "Compile Sources" phase from "Foodnote" target */,
-				C147EBA32F1F915000259D33 /* Exceptions for "Foodnote" folder in "FoodnoteUITests" target */,
 			);
 			path = Foodnote;
 			sourceTree = "<group>";
 		};
 		C140FCC32E65F65A00D25DA1 /* FoodnoteTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				C147EB632F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "Foodnote" target */,
-				C147EB642F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "FoodnoteTests" target */,
-			);
 			path = FoodnoteTests;
 			sourceTree = "<group>";
 		};
@@ -138,6 +113,7 @@
 		C140FCA92E65F65900D25DA1 = {
 			isa = PBXGroup;
 			children = (
+				C1D0623B2F1F91EC0044E44F /* README 2.md */,
 				C140FCB42E65F65900D25DA1 /* Foodnote */,
 				C140FCC32E65F65A00D25DA1 /* FoodnoteTests */,
 				C140FCCD2E65F65A00D25DA1 /* FoodnoteUITests */,
@@ -320,6 +296,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1D0626A2F1F91EC0044E44F /* README 2.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
