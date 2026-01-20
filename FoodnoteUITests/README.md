@@ -81,6 +81,19 @@ Each food entry includes:
 - **Notes**: JSON files with unique IDs
 - **Typical Storage**: ~800KB per food entry (app) + 2MB (Photos)
 
+## 🔑 Setup API Keys
+
+1. **Copy the secrets template:**
+```bash
+   cp Secrets.swift.example Secrets.swift
+```
+
+2. **Add your API keys to `Secrets.swift`:**
+   - Google Maps API Key
+   - OpenAI API Key
+
+3. **Never commit `Secrets.swift`** - it's in `.gitignore`
+
 ## 📁 Project Structure
 ```
 Foodnote/

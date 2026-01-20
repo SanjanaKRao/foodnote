@@ -38,26 +38,65 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C147EB632F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "Foodnote" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FunctionalRequirements.md,
+			);
+			target = C140FCB12E65F65900D25DA1 /* Foodnote */;
+		};
+		C147EB642F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "FoodnoteTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FunctionalRequirements.md,
+			);
+			target = C140FCBF2E65F65A00D25DA1 /* FoodnoteTests */;
+		};
+		C147EBA32F1F915000259D33 /* Exceptions for "Foodnote" folder in "FoodnoteUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"FunctionalRequirements 2.md",
+			);
+			target = C140FCC92E65F65A00D25DA1 /* FoodnoteUITests */;
+		};
 		C15F669E2F1A4277002D7583 /* Exceptions for "Foodnote" folder in "Foodnote" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"FunctionalRequirements 2.md",
 				Info.plist,
+				Secrets.swift.example,
 			);
 			target = C140FCB12E65F65900D25DA1 /* Foodnote */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		C147EB692F1F8E3D00259D33 /* Exceptions for "Foodnote" folder in "Compile Sources" phase from "Foodnote" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = C140FCAE2E65F65900D25DA1 /* Sources */;
+			membershipExceptions = (
+				Secrets.swift.example,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C140FCB42E65F65900D25DA1 /* Foodnote */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C15F669E2F1A4277002D7583 /* Exceptions for "Foodnote" folder in "Foodnote" target */,
+				C147EB692F1F8E3D00259D33 /* Exceptions for "Foodnote" folder in "Compile Sources" phase from "Foodnote" target */,
+				C147EBA32F1F915000259D33 /* Exceptions for "Foodnote" folder in "FoodnoteUITests" target */,
 			);
 			path = Foodnote;
 			sourceTree = "<group>";
 		};
 		C140FCC32E65F65A00D25DA1 /* FoodnoteTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C147EB632F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "Foodnote" target */,
+				C147EB642F1F8DC700259D33 /* Exceptions for "FoodnoteTests" folder in "FoodnoteTests" target */,
+			);
 			path = FoodnoteTests;
 			sourceTree = "<group>";
 		};

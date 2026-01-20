@@ -5,7 +5,7 @@ class OpenAIService {
     static let shared = OpenAIService()
     private init() {}
     
-    private let apiKey = ""
+    private let apiKey = Secrets.openAIAPIKey
     
     func detectFoodName(from image: UIImage) async throws -> String {
         // Resize image to reduce token usage

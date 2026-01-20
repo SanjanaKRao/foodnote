@@ -13,8 +13,8 @@ import GooglePlaces
 struct FoodnoteApp: App {
     
     init() {
-            GMSServices.provideAPIKey("")
-            GMSPlacesClient.provideAPIKey("")
+            GMSServices.provideAPIKey(Secrets.googleMapsAPIKey)
+            GMSPlacesClient.provideAPIKey(Secrets.googleMapsAPIKey)
         }
     
     var body: some Scene {
