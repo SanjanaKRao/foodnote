@@ -65,8 +65,8 @@ struct InteractiveMapView: View {
                 selectedCountryData = CountryData(country: country, images: imgs)
                 print("✅ Set selectedCountryData: \(selectedCountryData != nil)")
             }
-            .padding(.top, 60)
-            .padding(.bottom, 90)
+            .padding(.top, 20)
+            .padding(.bottom, 20)
             .edgesIgnoringSafeArea(.all)
         }
         .fullScreenCover(item: $selectedCountryData) { data in
