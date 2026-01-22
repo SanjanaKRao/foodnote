@@ -10,7 +10,9 @@
 		C15F66922F1A181B002D7583 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = C15F66912F1A181B002D7583 /* GoogleMaps */; };
 		C15F66952F1A24DF002D7583 /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = C15F66942F1A24DF002D7583 /* GooglePlaces */; };
 		C15F66972F1A24DF002D7583 /* GooglePlacesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C15F66962F1A24DF002D7583 /* GooglePlacesSwift */; };
-		C1D0626A2F1F91EC0044E44F /* README 2.md in Resources */ = {isa = PBXBuildFile; fileRef = C1D0623B2F1F91EC0044E44F /* README 2.md */; };
+		C1D062F12F1F95850044E44F /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = C1D062D32F1F95850044E44F /* .gitignore */; };
+		C1D0630D2F1F97790044E44F /* FunctionalRequirements.md in Resources */ = {isa = PBXBuildFile; fileRef = C1D0630B2F1F97790044E44F /* FunctionalRequirements.md */; };
+		C1D0630E2F1F97790044E44F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C1D0630C2F1F97790044E44F /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,13 +38,16 @@
 		C140FCCA2E65F65A00D25DA1 /* FoodnoteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodnoteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C147EAFF2F1E722D00259D33 /* Foodnote.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Foodnote.xcodeproj; sourceTree = "<group>"; };
 		C147EB042F1E722D00259D33 /* Foodnote.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Foodnote.xcodeproj; sourceTree = "<group>"; };
-		C1D0623B2F1F91EC0044E44F /* README 2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "README 2.md"; sourceTree = "<group>"; };
+		C1D062D32F1F95850044E44F /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		C1D0630B2F1F97790044E44F /* FunctionalRequirements.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = FunctionalRequirements.md; sourceTree = "<group>"; };
+		C1D0630C2F1F97790044E44F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		C15F669E2F1A4277002D7583 /* Exceptions for "Foodnote" folder in "Foodnote" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				CountryMapView,
 				Info.plist,
 				Secrets.swift.example,
 			);
@@ -55,6 +60,7 @@
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = C140FCAE2E65F65900D25DA1 /* Sources */;
 			membershipExceptions = (
+				CountryMapView,
 				Secrets.swift.example,
 			);
 		};
@@ -113,7 +119,9 @@
 		C140FCA92E65F65900D25DA1 = {
 			isa = PBXGroup;
 			children = (
-				C1D0623B2F1F91EC0044E44F /* README 2.md */,
+				C1D0630B2F1F97790044E44F /* FunctionalRequirements.md */,
+				C1D0630C2F1F97790044E44F /* README.md */,
+				C1D062D32F1F95850044E44F /* .gitignore */,
 				C140FCB42E65F65900D25DA1 /* Foodnote */,
 				C140FCC32E65F65A00D25DA1 /* FoodnoteTests */,
 				C140FCCD2E65F65A00D25DA1 /* FoodnoteUITests */,
@@ -282,6 +290,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1D0630D2F1F97790044E44F /* FunctionalRequirements.md in Resources */,
+				C1D0630E2F1F97790044E44F /* README.md in Resources */,
+				C1D062F12F1F95850044E44F /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -296,7 +307,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1D0626A2F1F91EC0044E44F /* README 2.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

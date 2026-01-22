@@ -1,0 +1,25 @@
+//
+//  GoogleMapView.swift
+//  Foodnote
+//
+//  Created by Sanjana K Rao on 20/01/26.
+//
+
+
+import SwiftUI
+import CoreLocation
+
+struct GoogleMapView: UIViewControllerRepresentable {
+    let annotations: [CountryAnnotation]
+    let onCountryTapped: (String, [StoredImage]) -> Void
+    
+    func makeUIViewController(context: Context) -> GoogleMapViewController {
+        let viewController = GoogleMapViewController()
+        viewController.onCountryTapped = onCountryTapped
+        return viewController
+    }
+    
+    func updateUIViewController(_ uiViewController: GoogleMapViewController, context: Context) {
+        uiViewController.updateAnnotations(annotations)
+    }
+}

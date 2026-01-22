@@ -254,6 +254,8 @@ struct AddNoteView: View {
                     name: name,
                     restaurant: restaurant,
                     location: location,
+                    latitude: selectedLocation?.coordinate.latitude,  
+                    longitude: selectedLocation?.coordinate.longitude,
                     rating: rating,
                     description: description,
                     imageId: imageId

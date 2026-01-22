@@ -135,15 +135,6 @@ struct ImageDetailView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .foregroundStyle(.white)
-                            .font(.headline)
-                    }
-                }
                 
                 if note != nil {
                     ToolbarItem(placement: .topBarTrailing) {

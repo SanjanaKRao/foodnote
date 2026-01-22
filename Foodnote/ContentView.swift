@@ -4,6 +4,7 @@ import CoreLocation
 enum SortOption {
     case all
     case location
+    case map
     case rating
 }
 
@@ -186,6 +187,19 @@ struct ContentView: View {
                                 }
                                 
                                 Button {
+                                        withAnimation {
+                                            sortOption = .map
+                                        }
+                                    } label: {
+                                        HStack {
+                                            Text("Map")
+                                            if sortOption == .map {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                
+                                Button {
                                     withAnimation {
                                         sortOption = .rating
                                     }
@@ -199,8 +213,11 @@ struct ContentView: View {
                                 }
                             } label: {
                                 HStack(spacing: 4) {
-                                    Image(systemName: sortOption == .all ? "photo.stack" : (sortOption == .rating ? "star.fill" : "location.fill"))
-                                    Text(sortOption == .all ? "All" : (sortOption == .rating ? "Rating" : "Location"))
+                                    //Menu label icon and text
+                                    Image(systemName: sortOption == .all ? "photo.stack" : (sortOption == .map ? "map.fill" : (sortOption == .rating ? "star.fill" : "location.fill")))
+
+                                    Text(sortOption == .all ? "All" : (sortOption == .map ? "Map" : (sortOption == .rating ? "Rating" : "Location")))
+                                    
                                     Image(systemName: "chevron.down")
                                         .font(.caption)
                                 }
@@ -216,20 +233,37 @@ struct ContentView: View {
                         .padding(.top, 8)
                         
                         ZStack(alignment: .bottom) {
-                            ScrollView {
-                                VStack(spacing: 20) {
-                                    switch sortOption {
-                                    case .all:
-                                        allItemsView
-                                    case .location:
-                                        locationGroupedView
-                                    case .rating:
-                                        ratingBasedView
+                            if sortOption == .map {
+                                    // Map view takes full space, no ScrollView
+                                    InteractiveMapView(
+                                        images: filteredImages,
+                                        notes: notes,
+                                        selectedImage: $selectedImage,
+                                        pendingUIImage: $pendingUIImage,
+                                        showAddNote: $showAddNote,
+                                        errorMessage: $errorMessage,
+                                        deleteImage: deleteImage,
+                                        foodCard: { img in AnyView(foodCard(for: img)) }
+                                    )
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .edgesIgnoringSafeArea(.all)
+                            } else {
+                                ScrollView {
+                                    VStack(spacing: 20) {
+                                        switch sortOption {
+                                        case .all:
+                                            allItemsView
+                                        case .location:
+                                            locationGroupedView
+                                        case .rating:
+                                            ratingBasedView
+                                        default:
+                                            EmptyView()
+                                        }
                                     }
+                                    .padding(.bottom, 80) // Space for camera buttons
                                 }
-                                .padding(.bottom, 80) // Space for camera buttons
                             }
-                            
                             // Floating delete button
                             if isSelectionMode && !selectedImages.isEmpty {
                                 Button {
@@ -474,7 +508,7 @@ struct ContentView: View {
         }
         .padding(.vertical)
     }
-    
+        
     var ratingBasedView: some View {
         let groupedByRating: [Int: [StoredImage]] = Dictionary(grouping: filteredImages) { img in
             if let note = notes[img.id] {
@@ -535,37 +569,49 @@ struct ContentView: View {
     func foodCard(for img: StoredImage) -> some View {
         Group {
             if let uiImage = UIImage(contentsOfFile: img.fileURL.path) {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 0) {  // Changed spacing to 0
+                    // Image with conditional navigation
                     ZStack(alignment: .topTrailing) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 160, height: 160)
-                            .clipped()
-                            .cornerRadius(16)
-                            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(selectedImages.contains(img.id) ? Color.blue : Color.clear, lineWidth: 3)
-                            )
-                            .onTapGesture {
-                                if isSelectionMode {
+                        if isSelectionMode {
+                            // In selection mode: just the image, no navigation
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 160, height: 160)
+                                .clipped()
+                                .cornerRadius(16)
+                                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(selectedImages.contains(img.id) ? Color.blue : Color.clear, lineWidth: 3)
+                                )
+                                .onTapGesture {
                                     toggleSelection(for: img.id)
-                                } else {
-                                    // Normal tap - show detail view
-                                    print("🖱️ Image tapped - showing detail view")
-                                    selectedImage = img
-                                    detailImage = uiImage
-                                    pendingUIImage = uiImage
-                                    pendingLocation = nil
-                                    
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                        showImageDetail = true
-                                    }
                                 }
+                        } else {
+                            // Normal mode: navigation link
+                            NavigationLink {
+                                ImageDetailView(
+                                    image: uiImage,
+                                    note: notes[img.id]
+                                ) {
+                                    selectedImage = img
+                                    pendingUIImage = uiImage
+                                    showAddNote = true
+                                }
+                            } label: {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 160, height: 160)
+                                    .clipped()
+                                    .cornerRadius(16)
+                                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                             }
+                            .buttonStyle(.plain)
+                        }
                         
-                        // Selection checkmark
+                        // Selection checkmark overlay
                         if isSelectionMode {
                             Image(systemName: selectedImages.contains(img.id) ? "checkmark.circle.fill" : "circle")
                                 .font(.title2)
@@ -580,19 +626,25 @@ struct ContentView: View {
                         }
                     }
                     
-                    noteInfoView(for: img)
-                        .frame(width: 160, alignment: .leading)
-                        .padding(.horizontal, 4)
-                        .background(Color.white)
-                        .onTapGesture {
-                            if !isSelectionMode {
-                                print("🖱️ Note info tapped - showing add note")
-                                selectedImage = img
-                                pendingUIImage = uiImage
-                                pendingLocation = nil
-                                showAddNote = true
-                            }
+                    // Note info with larger tappable area
+                    VStack(spacing: 0) {
+                        noteInfoView(for: img)
+                            .frame(width: 160, alignment: .leading)
+                            .padding(.horizontal, 8)  // Increased horizontal padding
+                            .padding(.vertical, 12)   // Added vertical padding for bigger tap area
+                    }
+                    .frame(width: 160)
+                    .background(Color.white)
+                    .contentShape(Rectangle())  // Make entire area tappable
+                    .onTapGesture {
+                        if !isSelectionMode {
+                            print("🖱️ Note area tapped for image: \(img.id)")
+                            selectedImage = img
+                            pendingUIImage = uiImage
+                            pendingLocation = nil
+                            showAddNote = true
                         }
+                    }
                 }
                 .background(Color.white)
                 .opacity(isSelectionMode && !selectedImages.contains(img.id) ? 0.6 : 1.0)
@@ -620,39 +672,53 @@ struct ContentView: View {
         }
     }
     
+    
     func stackedFoodCard(for img: StoredImage) -> some View {
         Group {
             if let uiImage = UIImage(contentsOfFile: img.fileURL.path) {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 0) {  // Changed spacing to 0
+                    // Image with conditional navigation
                     ZStack(alignment: .topTrailing) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 280, height: 280)
-                            .clipped()
-                            .cornerRadius(20)
-                            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(selectedImages.contains(img.id) ? Color.blue : Color.clear, lineWidth: 3)
-                            )
-                            .onTapGesture {
-                                if isSelectionMode {
+                        if isSelectionMode {
+                            // In selection mode: just the image, no navigation
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 280, height: 280)
+                                .clipped()
+                                .cornerRadius(20)
+                                .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(selectedImages.contains(img.id) ? Color.blue : Color.clear, lineWidth: 3)
+                                )
+                                .onTapGesture {
                                     toggleSelection(for: img.id)
-                                } else {
-                                    print("🖱️ Stacked image tapped - showing detail view")
-                                    selectedImage = img
-                                    detailImage = uiImage
-                                    pendingUIImage = uiImage
-                                    pendingLocation = nil
-                                    
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                        showImageDetail = true
-                                    }
                                 }
+                        } else {
+                            // Normal mode: navigation link
+                            NavigationLink {
+                                ImageDetailView(
+                                    image: uiImage,
+                                    note: notes[img.id]
+                                ) {
+                                    selectedImage = img
+                                    pendingUIImage = uiImage
+                                    showAddNote = true
+                                }
+                            } label: {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 280, height: 280)
+                                    .clipped()
+                                    .cornerRadius(20)
+                                    .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                             }
+                            .buttonStyle(.plain)
+                        }
                         
-                        // Selection checkmark
+                        // Selection checkmark overlay
                         if isSelectionMode {
                             Image(systemName: selectedImages.contains(img.id) ? "checkmark.circle.fill" : "circle")
                                 .font(.title)
@@ -667,18 +733,25 @@ struct ContentView: View {
                         }
                     }
                     
-                    noteInfoView(for: img, isStacked: true)
-                        .frame(width: 280, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .onTapGesture {
-                            if !isSelectionMode {
-                                print("🖱️ Stacked note tapped - showing add note")
-                                selectedImage = img
-                                pendingUIImage = uiImage
-                                pendingLocation = nil
-                                showAddNote = true
-                            }
+                    // Note info with larger tappable area
+                    VStack(spacing: 0) {
+                        noteInfoView(for: img, isStacked: true)
+                            .frame(width: 280, alignment: .leading)
+                            .padding(.horizontal, 12)  // Increased horizontal padding
+                            .padding(.vertical, 16)    // Added vertical padding for bigger tap area
+                    }
+                    .frame(width: 280)
+                    .background(Color.white)
+                    .contentShape(Rectangle())  // Make entire area tappable
+                    .onTapGesture {
+                        if !isSelectionMode {
+                            print("🖱️ Stacked note area tapped for image: \(img.id)")
+                            selectedImage = img
+                            pendingUIImage = uiImage
+                            pendingLocation = nil
+                            showAddNote = true
                         }
+                    }
                 }
                 .padding(16)
                 .background(Color.white)
@@ -708,6 +781,7 @@ struct ContentView: View {
             }
         }
     }
+    
     
     func noteInfoView(for img: StoredImage, isStacked: Bool = false) -> some View {
         let fontSize: CGFloat = isStacked ? 18 : 16
