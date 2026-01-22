@@ -1,169 +1,181 @@
-# Functional Requirements
+# Foodnote - Functional Requirements (Brief)
 
-## 1. Overview
-Foodnote is an app which stores all your best dishes/(dishes to avoid) at your favorite/hated restaurant at the quick snap of your camera. It auto detects the food using an LLM model, it auto detects your location. Input the name of your restaurant(optionall) and add a rating to it(1-5 stars). You can then sort it based on location/restaurant so you never have to forget your memories again.
-
----
-
-## 2. Scope
-Define what is **in scope** and **out of scope**.
-
-### In Scope
-- Capture food photos
-- Store photos locally
-- Associate notes with photos
-- Upload photos
-- 
-
-### Out of Scope
-- Cloud synchronization
-- Social sharing
-- Payment processing
+## Project Overview
+**Product:** Foodnote - iOS Food Journal App  
+**Purpose:** Capture, organize, and remember dining experiences with photos, notes, and locations
 
 ---
 
-## 3. Actors
-List all user types or system actors.
+## 1. Photo Management
 
-| Actor | Description |
-|-----|-------------|
-| User | End user of the mobile application |
-| System | Application backend or local services |
-| OS Services | Camera, Photos, Location services |
+### 1.1 Photo Capture
+- **Camera**: Take photos directly, auto-save to iOS Photos (full quality) + app storage (compressed)
+- **Upload**: Import from photo library, extract EXIF location data
+- **Storage**: Compressed JPEG (0.7 quality, ~800KB) in app documents folder
 
----
-
-## 4. Functional Requirements
-
-### FR-1: Capture Food Photo
-**Description:**  
-The system shall allow the user to capture a food photo using the device camera.
-
-**Priority:** High  
-**Actors:** User  
-**Preconditions:** Camera permission granted  
-**Postconditions:** Photo is saved locally  
+### 1.2 Photo Display
+- **Grid View**: 160x160px thumbnails with note info
+- **Horizontal Scroll**: 280x280px cards for rating view
+- **Full-Screen Detail**: Pinch-to-zoom (1x-5x), pan, double-tap zoom toggle
 
 ---
 
-### FR-2: Upload Food Photo from Library
-**Description:**  
-The system shall allow the user to select a food photo from the device photo library.
+## 2. Note System
 
-**Priority:** High  
-**Actors:** User  
-**Preconditions:** Photo library permission granted  
-**Postconditions:** Selected photo is stored locally  
+### 2.1 Note Fields
+- **Food Name** (required) - With AI detection option
+- **Restaurant** (optional) - Searchable via Google Maps
+- **Location** (optional) - Auto-detected from GPS/EXIF
+- **Rating** (1-5 stars, default: 3)
+- **Description** (optional multi-line text)
+- **Coordinates** (latitude/longitude, auto-stored)
 
----
-
-### FR-3: Store Photo Metadata
-**Description:**  
-The system shall store metadata associated with each photo, including name, restaurant, location, rating, and description.
-
-**Priority:** High  
-**Actors:** System  
+### 2.2 Note Operations
+- **Create**: Auto-opens after photo capture
+- **Edit**: Tap note text, pencil icon, or context menu
+- **Save**: JSON files in app documents, persists across app restarts
+- **Auto-Detection**: Food name (AI), location (GPS/EXIF)
 
 ---
 
-### FR-4: Auto-detect Location
-**Description:**  
-The system shall automatically determine the photo location using available metadata or device location services.
+## 3. AI Features
 
-**Priority:** Medium  
-**Actors:** System  
-**Fallback:** Device GPS if photo metadata is unavailable  
+### 3.1 Food Name Detection
+- **Provider**: OpenAI Vision API (gpt-4o-mini)
+- **Trigger**: Magic wand button when name field empty
+- **Process**: Image → AI analysis → Auto-fill name field
 
----
-
-### FR-5: View Photos by Date
-**Description:**  
-The system shall display photos sorted by creation date.
-
-**Priority:** Medium  
-**Actors:** User  
+### 3.2 Location Detection
+- **EXIF Data**: Extract from uploaded photos
+- **GPS**: Current location for camera photos
+- **Google Geocoding**: Convert coordinates to "SubLocality, Locality, Country"
 
 ---
 
-### FR-6: View Photos by Location
-**Description:**  
-The system shall group and display photos by location.
+## 4. Google Maps Integration
 
-**Priority:** High  
-**Actors:** User  
+### 4.1 Restaurant Picker
+- **Search**: Autocomplete for restaurants/places
+- **Selection**: Auto-fills restaurant name + location
+- **Smart Fill**: Updates location only if restaurant already entered
 
----
-
-### FR-7: View Photos by Restaurant
-**Description:**  
-The system shall group photos by restaurant within a selected location.
-
-**Priority:** High  
-**Actors:** User  
+### 4.2 Map View
+- **Display**: World map with restaurant markers (red fork/knife icons)
+- **Marker Size**: Scales with photo count (40px-120px)
+- **Interaction**: Tap marker → View all photos from that country
+- **Positioning**: Uses real GPS coordinates from photos
 
 ---
 
-### FR-8: Edit Food Note
-**Description:**  
-The system shall allow the user to edit food note details for a selected photo.
+## 5. Organization & Views
 
-**Priority:** High  
-**Actors:** User  
+### 5.1 Sort Options
+- **All**: Grid of all photos, newest first
+- **Map**: Google Maps with country markers
+- **Location**: Grouped by Country → City → Restaurant
+- **Rating**: Grouped by star rating (5★ → Unrated)
 
----
-
-### FR-9: Delete Photo
-**Description:**  
-The system shall allow the user to delete a photo and its associated note.
-
-**Priority:** Medium  
-**Actors:** User  
+### 5.2 Search & Filter
+- **Search**: Real-time text search (name, restaurant, location)
+- **Date Filter**: Single day or date range selection
+- **Combined**: Search + date filter work together
 
 ---
 
-## 5. Error Handling Requirements
+## 6. Batch Operations
 
-### ER-1: Permission Denied
-**Description:**  
-If required permissions are denied, the system shall notify the user and disable the affected functionality.
+### 6.1 Multi-Select Mode
+- **Activation**: "Select" button
+- **Selection**: Tap images (blue border + checkmark)
+- **Visual Feedback**: Selected scaled 95%, unselected 60% opacity
 
----
-
-### ER-2: Storage Failure
-**Description:**  
-If photo or note storage fails, the system shall display an error message.
-
----
-
-## 6. Non-Functional Constraints (Reference)
-(Optionally link to a separate NFR document.)
-
-- Performance
-- Security
-- Usability
-- Accessibility
+### 6.2 Batch Delete
+- **Trigger**: "Delete X" floating button
+- **Confirmation**: Alert with count
+- **Action**: Removes photos + notes from storage
 
 ---
 
-## 7. Assumptions
-List assumptions made while defining requirements.
+## 7. Navigation
 
-- The device supports camera and photo library access
-- Location services may be unavailable
+### 7.1 Main Interface
+- **Top**: Search bar, date filter, select button
+- **Middle**: Sort menu, content area (grid/map/scroll)
+- **Bottom**: "Take Photo" (blue) + "Upload" (green) buttons
+
+### 7.2 Navigation Patterns
+- **NavigationLink**: Photo detail views (push with back button)
+- **Sheet**: Add/edit note forms (modal)
+- **Full-Screen Cover**: Country detail from map
+- **Context Menu**: Long-press for Edit/Delete
 
 ---
 
-## 8. Open Questions
-Track unresolved decisions.
+## 8. Data Persistence
 
-- Should cloud backup be supported in the future?
-- Should photos be exportable?
+### 8.1 Storage
+- **Images**: `{uuid}.jpg` in app documents folder
+- **Notes**: `{note-id}.json` in app documents folder
+- **In-Memory**: Dictionary mapping imageId → FoodNote
+
+### 8.2 Data Models
+```swift
+FoodNote: name, restaurant, location, lat/lon, rating, description, imageId, date
+StoredImage: id, fileURL, createdDate
+CountryAnnotation: country, coordinate, imageCount, images[]
+```
 
 ---
 
-## 9. Change Log
+## 9. External Dependencies
 
-| Version | Date | Description |
-|-------|------|-------------|
-| 1.0 | YYYY-MM-DD | Initial draft |
+### 9.1 APIs
+- **Google Maps**: Maps display, restaurant search, geocoding
+- **OpenAI Vision**: AI-powered food name detection
 
+### 9.2 iOS Frameworks
+- **SwiftUI**: UI framework
+- **CoreLocation**: GPS and location services
+- **Photos/PhotosUI**: Photo library access
+- **UIKit**: Camera, image processing
+
+---
+
+## 10. Key User Workflows
+
+### Add Entry
+1. Take/upload photo → 2. Auto-detect location → 3. (Optional) AI detect food name → 4. Fill details → 5. Save
+
+### View Entries
+- Browse grid/scroll views
+- Tap photo for full-screen detail with zoom
+- Switch sort modes (All/Map/Location/Rating)
+
+### Edit Entry
+- Tap note text OR pencil icon OR long-press → Edit form → Save
+
+### Delete
+- **Single**: Long-press → Delete → Confirm
+- **Batch**: Select mode → Tap multiple → Delete X → Confirm
+
+### Search
+- Type in search bar (real-time filter)
+- Add date filter (single day or range)
+- Clear with X button
+
+---
+
+## 11. Technical Highlights
+
+- **Storage**: File-based (no database), JSON + JPEG
+- **Image Quality**: Full quality in iOS Photos, compressed in app
+- **Coordinates**: Stored with notes for accurate map positioning
+- **Persistence**: All data survives app restarts
+- **Rate Limiting**: Retry logic for OpenAI API
+- **Free Tier**: Google Maps $200/month credit (sufficient for personal use)
+
+---
+
+**Version**: 1.0  
+**Platform**: iOS 15.0+  
+**Architecture**: SwiftUI + MVVM pattern
