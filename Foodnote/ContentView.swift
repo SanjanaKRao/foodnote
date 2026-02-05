@@ -1,11 +1,20 @@
 import SwiftUI
 import CoreLocation
 
-enum SortOption {
-    case all
-    case location
-    case map
-    case rating
+enum SortOption: String, CaseIterable {
+    case all = "All"
+    case map = "Map"
+    case location = "Location"
+    case rating = "Rating"
+    
+    var icon: String {
+        switch self {
+        case .all: return "square.grid.2x2"
+        case .map: return "map.fill"
+        case .location: return "location.fill"
+        case .rating: return "star.fill"
+        }
+    }
 }
 
 // MARK: - Keyboard Dismissal Extension
@@ -25,7 +34,7 @@ struct ContentView: View {
     @State private var images: [StoredImage] = []
     @State private var notes: [String: FoodNote] = [:]
     @State private var errorMessage: String?
-    @State private var sortOption: SortOption = .all
+    @State private var selectedSort: SortOption = .all
     @State private var searchText = ""
     @State private var showDatePicker = false
     @State private var selectedStartDate: Date?
@@ -159,81 +168,13 @@ struct ContentView: View {
                             if !images.isEmpty {
                                 selectButton
                             }
-                            Menu {
-                                Button {
-                                    withAnimation {
-                                        sortOption = .all
-                                    }
-                                } label: {
-                                    HStack {
-                                        Text("All")
-                                        if sortOption == .all {
-                                            Image(systemName: "checkmark")
-                                        }
-                                    }
-                                }
-                                
-                                Button {
-                                    withAnimation {
-                                        sortOption = .location
-                                    }
-                                } label: {
-                                    HStack {
-                                        Text("Location")
-                                        if sortOption == .location {
-                                            Image(systemName: "checkmark")
-                                        }
-                                    }
-                                }
-                                
-                                Button {
-                                        withAnimation {
-                                            sortOption = .map
-                                        }
-                                    } label: {
-                                        HStack {
-                                            Text("Map")
-                                            if sortOption == .map {
-                                                Image(systemName: "checkmark")
-                                            }
-                                        }
-                                    }
-                                
-                                Button {
-                                    withAnimation {
-                                        sortOption = .rating
-                                    }
-                                } label: {
-                                    HStack {
-                                        Text("Rating")
-                                        if sortOption == .rating {
-                                            Image(systemName: "checkmark")
-                                        }
-                                    }
-                                }
-                            } label: {
-                                HStack(spacing: 4) {
-                                    //Menu label icon and text
-                                    Image(systemName: sortOption == .all ? "photo.stack" : (sortOption == .map ? "map.fill" : (sortOption == .rating ? "star.fill" : "location.fill")))
-
-                                    Text(sortOption == .all ? "All" : (sortOption == .map ? "Map" : (sortOption == .rating ? "Rating" : "Location")))
-                                    
-                                    Image(systemName: "chevron.down")
-                                        .font(.caption)
-                                }
-                                .font(.subheadline)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.blue.opacity(0.1))
-                                .foregroundStyle(.blue)
-                                .cornerRadius(8)
-                            }
+                            CustomSortFilter(selectedSort: $selectedSort)
                         }
                         .padding(.horizontal)
                         .padding(.top, 8)
                         
                         ZStack(alignment: .bottom) {
-                            if sortOption == .map {
+                            if selectedSort == .map {
                                     // Map view takes full space, no ScrollView
                                     InteractiveMapView(
                                         images: filteredImages,
@@ -250,7 +191,7 @@ struct ContentView: View {
                             } else {
                                 ScrollView {
                                     VStack(spacing: 20) {
-                                        switch sortOption {
+                                        switch selectedSort {
                                         case .all:
                                             allItemsView
                                         case .location:
@@ -1021,5 +962,89 @@ struct ContentView: View {
                         .stroke(isSelectionMode ? Color.red.opacity(0.3) : Color.blue.opacity(0.3), lineWidth: 1)
                 )
         }
+    }
+}
+
+struct CustomSortFilter: View {
+    @Binding var selectedSort: SortOption
+    @State private var showDropdown = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Trigger button
+            Button {
+                withAnimation(.spring(response: 0.3)) {
+                    showDropdown.toggle()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: selectedSort.icon)
+                        .font(.system(size: 14, weight: .medium))
+                    Text(selectedSort.rawValue)
+                        .font(.system(size: 16, weight: .medium))
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .rotationEffect(.degrees(showDropdown ? 180 : 0))
+                }
+                .foregroundStyle(.blue)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.blue.opacity(0.1))
+                )
+            }
+            .buttonStyle(.plain)
+            
+            // Dropdown menu
+            if showDropdown {
+                VStack(spacing: 0) {
+                    ForEach(SortOption.allCases, id: \.self) { option in
+                        Button {
+                            withAnimation(.spring(response: 0.3)) {
+                                selectedSort = option
+                                showDropdown = false
+                            }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: option.icon)
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(.blue)
+                                    .frame(width: 24)
+                                
+                                Text(option.rawValue)
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(.blue)
+                                
+                                Spacer()
+                                
+                                if selectedSort == option {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(.blue)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(
+                                selectedSort == option ? Color.blue.opacity(0.05) : Color.white
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        
+                        if option != SortOption.allCases.last {
+                            Divider()
+                                .padding(.leading, 52)
+                        }
+                    }
+                }
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                .padding(.top, 8)
+                .transition(.scale(scale: 0.95).combined(with: .opacity))
+            }
+        }
+        .zIndex(1) // Ensure dropdown appears above other content
     }
 }

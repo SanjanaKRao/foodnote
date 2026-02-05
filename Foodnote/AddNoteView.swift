@@ -15,12 +15,14 @@ struct AddNoteView: View {
     
     let imageId: String
     let image: UIImage?
+    let existingNote: FoodNote?
     let photoLocation: CLLocation?
     let onSave: (FoodNote) -> Void
     
     init(imageId: String, image: UIImage? = nil, existingNote: FoodNote? = nil, photoLocation: CLLocation? = nil, onSave: @escaping (FoodNote) -> Void) {
         self.imageId = imageId
         self.image = image
+        self.existingNote = existingNote
         self.photoLocation = photoLocation
         self.onSave = onSave
         
@@ -251,6 +253,7 @@ struct AddNoteView: View {
         ToolbarItem(placement: .confirmationAction) {
             Button("Save") {
                 let note = FoodNote(
+                    id: existingNote?.id ?? imageId,
                     name: name,
                     restaurant: restaurant,
                     location: location,
