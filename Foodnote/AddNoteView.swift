@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreLocation
+import PhotosUI
 
 struct AddNoteView: View {
     @Environment(\.dismiss) private var dismiss
@@ -12,16 +13,18 @@ struct AddNoteView: View {
     @State private var isDetectingLocation = false
     @State private var showLocationPicker = false
     @State private var selectedLocation: CLLocation?
+    @State private var showImagePicker = false
+    @State private var newImage: UIImage?
     
     let imageId: String
-    let image: UIImage?
+    @State private var displayImage: UIImage?
     let existingNote: FoodNote?
     let photoLocation: CLLocation?
-    let onSave: (FoodNote) -> Void
+    let onSave: (FoodNote, UIImage?) -> Void  // Updated callback to include optional new image
     
-    init(imageId: String, image: UIImage? = nil, existingNote: FoodNote? = nil, photoLocation: CLLocation? = nil, onSave: @escaping (FoodNote) -> Void) {
+    init(imageId: String, image: UIImage? = nil, existingNote: FoodNote? = nil, photoLocation: CLLocation? = nil, onSave: @escaping (FoodNote, UIImage?) -> Void) {
         self.imageId = imageId
-        self.image = image
+        self._displayImage = State(initialValue: image)
         self.existingNote = existingNote
         self.photoLocation = photoLocation
         self.onSave = onSave
@@ -39,7 +42,7 @@ struct AddNoteView: View {
                 Color.white.ignoresSafeArea()
                 formContent
             }
-            .navigationTitle("Add Note")
+            .navigationTitle(existingNote == nil ? "Add Note" : "Edit Note")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Color.white, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -64,6 +67,35 @@ struct AddNoteView: View {
                     isDetectingLocation = false
                 }
             }
+            .sheet(isPresented: $showImagePicker) {
+                ImagePicker(sourceType: .photoLibrary) { result in
+                    switch result {
+                    case .success(let pickerResult):
+                        newImage = pickerResult.image
+                        displayImage = pickerResult.image
+                        
+                        // Optionally update location from new image
+                        if let newLocation = pickerResult.location {
+                            selectedLocation = newLocation
+                            Task {
+                                if let locationString = await GoogleLocationManager.shared.getLocationString(from: newLocation) {
+                                    await MainActor.run {
+                                        location = locationString
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Re-detect food name from new image if name is empty
+                        if name.isEmpty {
+                            detectFoodName()
+                        }
+                        
+                    case .failure(let error):
+                        print("❌ Image picker error: \(error)")
+                    }
+                }
+            }
             .onAppear {
                 if location.isEmpty {
                     detectLocationInBackground()
@@ -76,11 +108,62 @@ struct AddNoteView: View {
     
     private var formContent: some View {
         Form {
+            imageSection
             foodDetailsSection
             ratingSection
             descriptionSection
         }
         .scrollContentBackground(.hidden)
+    }
+    
+    private var imageSection: some View {
+        Section {
+            VStack(spacing: 12) {
+                if let img = displayImage {
+                    Image(uiImage: img)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 200)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .cornerRadius(12)
+                } else {
+                    // Placeholder if no image
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 200)
+                        .overlay(
+                            VStack {
+                                Image(systemName: "photo")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.gray)
+                                Text("No image")
+                                    .font(.caption)
+                                    .foregroundStyle(.gray)
+                            }
+                        )
+                }
+                if existingNote != nil {
+                    Button {
+                        showImagePicker = true
+                    } label: {
+                        HStack {
+                            Image(systemName: newImage != nil ? "arrow.triangle.2.circlepath" : "photo.badge.plus")
+                            Text(newImage != nil ? "Image Updated - Tap to change again" : (existingNote != nil ? "Replace Image" : "Change Image"))
+                                .font(.subheadline)
+                        }
+                        .foregroundStyle(.blue)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        }
+        .listRowBackground(Color.white)
     }
     
     private var foodDetailsSection: some View {
@@ -109,7 +192,7 @@ struct AddNoteView: View {
                 .buttonStyle(.plain)
             }
             
-            if let _ = image, name.isEmpty {
+            if displayImage != nil, name.isEmpty {
                 Button {
                     detectFoodName()
                 } label: {
@@ -243,6 +326,7 @@ struct AddNoteView: View {
         .listRowBackground(Color.white)
         .foregroundColor(Color(red: 0, green: 0, blue: 0))
     }
+    
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
@@ -257,30 +341,30 @@ struct AddNoteView: View {
                     name: name,
                     restaurant: restaurant,
                     location: location,
-                    latitude: selectedLocation?.coordinate.latitude,  
-                    longitude: selectedLocation?.coordinate.longitude,
+                    latitude: selectedLocation?.coordinate.latitude ?? existingNote?.latitude,
+                    longitude: selectedLocation?.coordinate.longitude ?? existingNote?.longitude,
                     rating: rating,
                     description: description,
                     imageId: imageId
                 )
-                onSave(note)
+                
+                print("💾 Saving note:")
+                print("   Note ID: \(note.id)")
+                print("   Image ID: \(note.imageId)")
+                print("   Name: '\(note.name)'")
+                print("   New image: \(newImage != nil)")
+                
+                onSave(note, newImage)
                 dismiss()
             }
             .disabled(name.isEmpty || isDetectingFood || isDetectingLocation)
         }
     }
     
-    private var locationPickerSheet: some View {
-        LocationPickerView(initialLocation: selectedLocation ?? photoLocation) { location in
-            selectedLocation = location
-            reverseGeocodeLocation(location)
-        }
-    }
-    
     // MARK: - Functions
     
     private func detectFoodName() {
-        guard let image = image else { return }
+        guard let image = displayImage else { return }
         
         isDetectingFood = true
         
@@ -342,23 +426,6 @@ struct AddNoteView: View {
                     }
                 } else {
                     print("❌ Failed to get current location string")
-                }
-            }
-        }
-    }
-    
-    private func reverseGeocodeLocation(_ clLocation: CLLocation) {
-        isDetectingLocation = true
-        
-        Task {
-            if let locationString = await AppleLocationManager.shared.getLocationString(from: clLocation) {
-                await MainActor.run {
-                    location = locationString
-                    isDetectingLocation = false
-                }
-            } else {
-                await MainActor.run {
-                    isDetectingLocation = false
                 }
             }
         }

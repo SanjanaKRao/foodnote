@@ -30,7 +30,7 @@ final class StorageManager {
         }
     }
 
-    private var documentsURL: URL {
+    var documentsURL: URL {  // Changed from private to public
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
 

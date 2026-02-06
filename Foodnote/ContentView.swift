@@ -298,12 +298,37 @@ struct ContentView: View {
                         image: pendingUIImage,
                         existingNote: notes[img.id],
                         photoLocation: pendingLocation
-                    ) { note in
-                        print("💾 Saving note")
+                    ) { note, newImage in
+                        print("💾 Saving note with potential new image")
                         do {
+                            // If there's a new image, replace the old one
+                            if let newImg = newImage {
+                                print("🖼️ Replacing image file...")
+                                
+                                // Delete old image file
+                                try StorageManager.shared.deleteImage(img)
+                                
+                                // Save new image with the SAME ID
+                                let imageURL = StorageManager.shared.documentsURL.appendingPathComponent("\(img.id).jpg")
+                                if let data = newImg.jpegData(compressionQuality: 0.9) {
+                                    try data.write(to: imageURL, options: .atomic)
+                                    print("✅ Image replaced successfully")
+                                }
+                                
+                                // Update the pending UI image for display
+                                pendingUIImage = newImg
+                                
+                                // Trigger view refresh by updating images array
+                                if let index = images.firstIndex(where: { $0.id == img.id }) {
+                                    images[index] = StoredImage(id: img.id, fileURL: imageURL, createdDate: img.createdDate)
+                                }
+                            }
+                            
+                            // Save the note
                             try StorageManager.shared.saveNote(note)
                             notes[img.id] = note
                             print("✅ Note saved")
+                            
                         } catch {
                             print("❌ Failed to save: \(error)")
                             errorMessage = error.localizedDescription
